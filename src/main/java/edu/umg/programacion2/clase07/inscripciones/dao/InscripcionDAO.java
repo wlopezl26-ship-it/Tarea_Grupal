@@ -28,9 +28,9 @@ import java.util.Optional;
  */
 public class InscripcionDAO {
 
-    private static final String URL = "jdbc:mariadb://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "pablo1213";
+    private static final String PASSWORD = "22345d";
 
     /**
      * Inscribe a un estudiante en un curso. Retorna el id generado.
@@ -85,21 +85,10 @@ public class InscripcionDAO {
      *    EstudianteDAO.actualizarNombre en la Clase 5).
      */
     public boolean registrarNota(int estudianteId, int cursoId, double nota) throws SQLException {
-
-        String sql = "UPDATE inscripciones SET nota = ? WHERE estudiante_id = ? AND curso_id = ?";
-
-        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
-            ps.setDouble(1, nota);
-            ps.setInt(2, estudianteId);
-            ps.setInt(3, cursoId);
-
-            int filasAfectadas = ps.executeUpdate();
-
-            return filasAfectadas > 0;
-        }
+        // TODO: completar.
+        return false;
     }
+
     /**
      * Lista los cursos en los que esta inscrito un estudiante, dado su
      * carnet.
@@ -136,7 +125,30 @@ public class InscripcionDAO {
      */
     public List<Estudiante> listarEstudiantesDeCurso(String nombreCurso) throws SQLException {
         List<Estudiante> resultado = new ArrayList<>();
-        // TODO: completar.
+
+        String sql = "SELECT e.id, e.nombre, e.carnet "
+                   + "FROM inscripciones i "
+                   + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                   + "JOIN cursos c ON i.curso_id = c.id "
+                   + "WHERE c.nombre = ?";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql)) {
+
+            statement.setString(1, nombreCurso);
+
+            try (ResultSet datos = statement.executeQuery()) {
+
+                while (datos.next()) {
+                    int id = datos.getInt("id");
+                    String nombre = datos.getString("nombre");
+                    String carnet = datos.getString("carnet");
+
+                    Estudiante estudiante = new Estudiante(id, nombre, carnet);
+                    resultado.add(estudiante);
+                }
+            }
+        }
 
         return resultado;
     }
@@ -164,7 +176,31 @@ public class InscripcionDAO {
      *    Optional.empty().
      */
     public Optional<Double> promedioDeEstudiante(String carnet) throws SQLException {
-        // TODO: completar (ver pistas arriba, especialmente el caso NULL).
+
+        String sql = "SELECT AVG(i.nota) AS promedio "
+                   + "FROM inscripciones i "
+                   + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                   + "WHERE e.carnet = ?";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql)) {
+
+            statement.setString(1, carnet);
+
+            try (ResultSet datos = statement.executeQuery()) {
+
+                if (datos.next()) {
+
+                    if (datos.getObject("promedio") == null) {
+                        return Optional.empty();
+                    }
+
+                    double promedio = datos.getDouble("promedio");
+                    return Optional.of(promedio);
+                }
+            }
+        }
+
         return Optional.empty();
     }
 
