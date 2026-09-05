@@ -1,5 +1,10 @@
 # Clase 7 - Cursos e Inscripciones (JDBC con relacion N:M) — Tarea
 
+#Integrantes del grupo
+1) Wendy Gabriela Lopez Lemus
+2)Dilan Stuard Pérez Corado
+3)Pablo David González Peñate
+
 ## Enunciado
 
 Un estudiante puede inscribirse en varios cursos, y un curso puede tener
