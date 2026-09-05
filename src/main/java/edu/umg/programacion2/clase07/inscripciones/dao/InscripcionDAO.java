@@ -28,9 +28,9 @@ import java.util.Optional;
  */
 public class InscripcionDAO {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mariadb://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "3424942522201We";
+    private static final String PASSWORD = "pablo1213";
 
     /**
      * Inscribe a un estudiante en un curso. Retorna el id generado.
@@ -85,10 +85,21 @@ public class InscripcionDAO {
      *    EstudianteDAO.actualizarNombre en la Clase 5).
      */
     public boolean registrarNota(int estudianteId, int cursoId, double nota) throws SQLException {
-        // TODO: completar.
-        return false;
-    }
 
+        String sql = "UPDATE inscripciones SET nota = ? WHERE estudiante_id = ? AND curso_id = ?";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setDouble(1, nota);
+            ps.setInt(2, estudianteId);
+            ps.setInt(3, cursoId);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            return filasAfectadas > 0;
+        }
+    }
     /**
      * Lista los cursos en los que esta inscrito un estudiante, dado su
      * carnet.

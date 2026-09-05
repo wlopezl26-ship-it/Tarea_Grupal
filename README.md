@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Tarea_Grupal
-Integrantes del grupo
-=======
 # Clase 7 - Cursos e Inscripciones (JDBC con relacion N:M) — Tarea
 
 ## Enunciado
@@ -87,4 +83,3 @@ Agrega un metodo `InscripcionDAO.estudiantesSinNota()` que liste los
 estudiantes con al menos una inscripcion cuya `nota` sea `NULL` (pista:
 `WHERE nota IS NULL`, y recuerda evitar estudiantes repetidos si aparecen en
 mas de una fila - investiga `SELECT DISTINCT`).
->>>>>>> 1f6abb6 (Commit inicial)

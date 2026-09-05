@@ -19,9 +19,9 @@ import java.util.Optional;
  */
 public class EstudianteDAO {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mariadb://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "3424942522201We";
+    private static final String PASSWORD = "pablo1213";
 
     public int crear(Estudiante estudiante) throws SQLException {
         String sql = "INSERT INTO estudiantes (nombre, carnet) VALUES (?, ?)";
