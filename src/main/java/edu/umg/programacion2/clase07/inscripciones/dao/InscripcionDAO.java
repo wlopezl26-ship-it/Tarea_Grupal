@@ -8,7 +8,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,8 +108,32 @@ public class InscripcionDAO {
      */
     public List<Curso> listarCursosDeEstudiante(String carnet) throws SQLException {
         List<Curso> resultado = new ArrayList<>();
-        // TODO: completar (ver pista del JOIN de 3 tablas arriba).
+        
+        String sql = "SELECT c.id, c.nombre, c.creditos " +
+                     "FROM inscripciones i " +
+                     "JOIN cursos c ON i.curso_id = c.id " +
+                     "JOIN estudiantes e ON i.estudiante_id = e.id " +
+                     "WHERE e.carnet = ?";
 
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+                PreparedStatement stmt = conexion.prepareStatement(sql)) {
+               
+               stmt.setString(1, carnet);
+               
+               try (ResultSet rs = stmt.executeQuery()) {
+                   while (rs.next()) {
+                       int id = rs.getInt("id");
+                       String nombre = rs.getString("nombre");
+                       int creditos = rs.getInt("creditos");
+                       
+                       Curso curso = new Curso(id, nombre, creditos);
+                       resultado.add(curso);
+                   }
+               }
+           } catch (SQLException e) {
+               e.printStackTrace();
+           }
+        
         return resultado;
     }
 
@@ -226,8 +249,28 @@ public class InscripcionDAO {
      * 4. Si no hay ninguna inscripcion todavia, el ResultSet viene vacio:
      *    retorna Optional.empty() en ese caso.
      */
-    public Optional<String> cursoConMasInscritos() throws SQLException {
-        // TODO: completar (ver pistas arriba).
+    public Optional<String> cursoConMasInscritos() {
+        String sql = "SELECT c.nombre, COUNT(*) AS total " +
+                     "FROM inscripciones i " +
+                     "JOIN cursos c ON i.curso_id = c.id " +
+                     "GROUP BY c.nombre " +
+                     "ORDER BY total DESC " +
+                     "LIMIT 1";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String nombreCurso = rs.getString("nombre");
+                    return Optional.of(nombreCurso);
+                }
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
         return Optional.empty();
     }
 }
