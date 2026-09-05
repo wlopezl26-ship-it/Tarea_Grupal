@@ -8,7 +8,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,8 +202,28 @@ public class InscripcionDAO {
      * 4. Si no hay ninguna inscripcion todavia, el ResultSet viene vacio:
      *    retorna Optional.empty() en ese caso.
      */
-    public Optional<String> cursoConMasInscritos() throws SQLException {
-        // TODO: completar (ver pistas arriba).
+    public Optional<String> cursoConMasInscritos() {
+        String sql = "SELECT c.nombre, COUNT(*) AS total " +
+                     "FROM inscripciones i " +
+                     "JOIN cursos c ON i.curso_id = c.id " +
+                     "GROUP BY c.nombre " +
+                     "ORDER BY total DESC " +
+                     "LIMIT 1";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String nombreCurso = rs.getString("nombre");
+                    return Optional.of(nombreCurso);
+                }
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
         return Optional.empty();
     }
 }
